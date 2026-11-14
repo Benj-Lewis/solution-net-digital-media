@@ -1,86 +1,123 @@
 <?php
 get_header();
 ?>
-<main class="snd-wrap snd-main">
-	<div class="snd-layout">
-		<div>
-			<?php
-			while ( have_posts() ) :
-				the_post();
-				$cat = snd_media_primary_cat();
-				?>
-				<article <?php post_class( 'snd-article' ); ?>>
-					<div class="snd-crumbs">
+<div class="snd-progress" aria-hidden="true"><span></span></div>
+<main>
+	<?php
+	while ( have_posts() ) :
+		the_post();
+		$snd_cat = snd_primary_cat();
+		?>
+		<div class="snd-wrap snd-layout snd-layout--single">
+			<article <?php post_class( 'snd-article ' . snd_cat_class() ); ?>>
+				<header class="snd-article-head">
+					<nav class="snd-crumbs" aria-label="Fil d'Ariane">
 						<a href="<?php echo esc_url( home_url( '/' ) ); ?>">Accueil</a>
-						<?php if ( $cat ) : ?>
-							› <a href="<?php echo esc_url( get_category_link( $cat ) ); ?>"><?php echo esc_html( $cat->name ); ?></a>
+						<?php if ( $snd_cat ) : ?>
+							<span>/</span><a href="<?php echo esc_url( get_category_link( $snd_cat ) ); ?>"><?php echo esc_html( $snd_cat->name ); ?></a>
 						<?php endif; ?>
-					</div>
-					<?php snd_media_cat_badge(); ?>
-					<h1><?php the_title(); ?></h1>
-					<div class="snd-meta">
-						Publié le <?php echo esc_html( get_the_date( 'j F Y' ) ); ?> à <?php echo esc_html( get_the_time( 'H\hi' ) ); ?>
-						· Par <?php the_author(); ?>
-					</div>
-					<?php if ( snd_media_is_demo() ) : ?>
-						<div class="snd-demo-note">Article de démonstration — contenu fictif, à remplacer.</div>
+					</nav>
+					<?php snd_badge(); ?>
+					<h1 class="snd-article-title"><?php the_title(); ?></h1>
+					<?php if ( has_excerpt() ) : ?>
+						<p class="snd-standfirst"><?php echo esc_html( get_the_excerpt() ); ?></p>
 					<?php endif; ?>
-					<?php
-					if ( has_post_thumbnail() ) {
-						snd_media_thumb( 'snd-hero', false );
-					}
-					?>
-					<div class="snd-content"><?php the_content(); ?></div>
-					<?php wp_link_pages(); ?>
-					<?php the_tags( '<div class="snd-tags">', '', '</div>' ); ?>
-					<?php
-					$url   = rawurlencode( get_permalink() );
-					$title = rawurlencode( get_the_title() );
-					?>
-					<div class="snd-share">
-						<span>Partager :</span>
-						<a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo esc_attr( $url ); ?>" target="_blank" rel="noopener">Facebook</a>
-						<a href="https://twitter.com/intent/tweet?url=<?php echo esc_attr( $url ); ?>&amp;text=<?php echo esc_attr( $title ); ?>" target="_blank" rel="noopener">X</a>
-						<a href="https://wa.me/?text=<?php echo esc_attr( $title . '%20' . $url ); ?>" target="_blank" rel="noopener">WhatsApp</a>
-						<a href="https://www.linkedin.com/sharing/share-offsite/?url=<?php echo esc_attr( $url ); ?>" target="_blank" rel="noopener">LinkedIn</a>
+					<div class="snd-byline">
+						<?php echo get_avatar( get_the_author_meta( 'ID' ), 44, '', '', array( 'class' => 'snd-avatar' ) ); ?>
+						<div class="snd-byline-text">
+							<span class="snd-byline-author">Par <strong><?php the_author(); ?></strong></span>
+							<span class="snd-byline-date">
+								Publié le <time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date( 'j F Y \à H\hi' ) ); ?></time>
+								<?php if ( get_the_modified_time( 'U' ) > get_the_time( 'U' ) + HOUR_IN_SECONDS ) : ?>
+									· mis à jour le <?php echo esc_html( get_the_modified_date( 'j F Y' ) ); ?>
+								<?php endif; ?>
+								· <?php echo esc_html( snd_reading_time() ); ?> min de lecture
+							</span>
+						</div>
 					</div>
-				</article>
+					<?php snd_share( 'snd-share--top' ); ?>
+				</header>
+
+				<?php if ( has_post_thumbnail() ) : ?>
+					<figure class="snd-article-figure">
+						<?php the_post_thumbnail( 'snd-xl', array( 'loading' => 'eager', 'fetchpriority' => 'high', 'alt' => '' ) ); ?>
+						<?php
+						$cap = get_the_post_thumbnail_caption();
+						if ( $cap ) {
+							echo '<figcaption>' . esc_html( $cap ) . '</figcaption>';
+						}
+						?>
+					</figure>
+				<?php endif; ?>
+
+				<?php if ( snd_is_demo() ) : ?>
+					<p class="snd-demo-note">Article de démonstration — texte fictif destiné à montrer la mise en page.</p>
+				<?php endif; ?>
+
+				<div class="snd-prose">
+					<?php the_content(); ?>
+				</div>
+				<?php wp_link_pages(); ?>
+
+				<footer class="snd-article-foot">
+					<?php the_tags( '<div class="snd-tags"><span>Mots-clés</span>', '', '</div>' ); ?>
+					<?php snd_share( 'snd-share--bottom' ); ?>
+					<div class="snd-authorbox">
+						<?php echo get_avatar( get_the_author_meta( 'ID' ), 64, '', '', array( 'class' => 'snd-avatar' ) ); ?>
+						<div>
+							<p class="snd-authorbox-name"><?php the_author(); ?></p>
+							<p><?php echo esc_html( get_the_author_meta( 'description' ) ? get_the_author_meta( 'description' ) : 'Rédaction de ' . get_bloginfo( 'name' ) . '.' ); ?></p>
+						</div>
+					</div>
+					<?php
+					$prev = get_previous_post( true );
+					$next = get_next_post( true );
+					if ( $prev || $next ) :
+						?>
+						<nav class="snd-postnav" aria-label="Articles voisins">
+							<?php if ( $prev ) : ?>
+								<a class="snd-postnav-prev" href="<?php echo esc_url( get_permalink( $prev ) ); ?>"><span>Article précédent</span><?php echo esc_html( get_the_title( $prev ) ); ?></a>
+							<?php endif; ?>
+							<?php if ( $next ) : ?>
+								<a class="snd-postnav-next" href="<?php echo esc_url( get_permalink( $next ) ); ?>"><span>Article suivant</span><?php echo esc_html( get_the_title( $next ) ); ?></a>
+							<?php endif; ?>
+						</nav>
+					<?php endif; ?>
+				</footer>
 
 				<?php
-				if ( $cat ) :
-					$rel = new WP_Query( array( 'cat' => $cat->term_id, 'posts_per_page' => 3, 'post__not_in' => array( get_the_ID() ), 'ignore_sticky_posts' => true, 'no_found_rows' => true ) );
-					if ( $rel->have_posts() ) :
-						?>
-						<section class="snd-related">
-							<div class="snd-section-title"><h2>À lire aussi</h2></div>
-							<div class="snd-cards">
-								<?php
-								while ( $rel->have_posts() ) {
-									$rel->the_post();
-									echo '<article class="snd-card">';
-									snd_media_thumb( 'snd-card' );
-									echo '<div class="snd-card-body"><h3><a href="' . esc_url( get_permalink() ) . '">' . esc_html( get_the_title() ) . '</a></h3>';
-									snd_media_date();
-									echo '</div></article>';
-								}
-								wp_reset_postdata();
-								?>
-							</div>
-						</section>
-						<?php
-					endif;
-				endif;
-
 				if ( comments_open() || get_comments_number() ) {
-					echo '<div class="snd-comments">';
 					comments_template();
-					echo '</div>';
 				}
-			endwhile;
-			?>
+				?>
+			</article>
+			<?php get_sidebar(); ?>
 		</div>
-		<?php get_sidebar(); ?>
-	</div>
+
+		<?php
+		if ( $snd_cat ) :
+			$rel = new WP_Query( array( 'cat' => $snd_cat->term_id, 'posts_per_page' => 4, 'post__not_in' => array( get_the_ID() ), 'ignore_sticky_posts' => true, 'no_found_rows' => true ) );
+			if ( $rel->have_posts() ) :
+				?>
+				<section class="snd-related">
+					<div class="snd-wrap">
+						<?php snd_section_head( 'À lire aussi', get_category_link( $snd_cat ), $snd_cat->slug ); ?>
+						<div class="snd-grid snd-grid-4">
+							<?php
+							while ( $rel->have_posts() ) {
+								$rel->the_post();
+								snd_card( false, 'snd-card', 'h3' );
+							}
+							wp_reset_postdata();
+							?>
+						</div>
+					</div>
+				</section>
+				<?php
+			endif;
+		endif;
+	endwhile;
+	?>
 </main>
 <?php
 get_footer();

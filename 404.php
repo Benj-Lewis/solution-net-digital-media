@@ -1,12 +1,12 @@
 <?php
 get_header();
 ?>
-<main class="snd-wrap snd-main">
-	<article class="snd-article" style="text-align:center">
-		<h1>Page introuvable</h1>
-		<p>La page demandée n'existe pas ou a été déplacée.</p>
-		<p><a class="snd-btn" href="<?php echo esc_url( home_url( '/' ) ); ?>">Retour à l'accueil</a></p>
-	</article>
+<main class="snd-wrap snd-404">
+	<p class="snd-404-code">404</p>
+	<h1>Cette page est introuvable</h1>
+	<p>Elle a peut-être été déplacée ou supprimée. Essayez une recherche ou revenez à l'accueil.</p>
+	<?php get_search_form(); ?>
+	<p><a class="snd-btn" href="<?php echo esc_url( home_url( '/' ) ); ?>">Retour à l'accueil</a></p>
 </main>
 <?php
 get_footer();

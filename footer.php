@@ -1,61 +1,48 @@
 </div><!-- #contenu -->
 
 <footer class="snd-footer">
-	<div class="snd-footer-top"></div>
 	<div class="snd-wrap">
 		<div class="snd-footer-grid">
+			<div class="snd-footer-about">
+				<?php snd_brand( 'footer' ); ?>
+				<p><?php echo esc_html( snd_opt( 'snd_about' ) ); ?></p>
+				<?php snd_social_links( 'snd-social snd-social--footer' ); ?>
+			</div>
 			<div>
-				<?php snd_media_brand(); ?>
+				<h2 class="snd-footer-title">Rubriques</h2>
+				<?php snd_menu_fallback( array( 'menu_class' => 'snd-footer-cats' ) ); ?>
+			</div>
+			<div>
+				<h2 class="snd-footer-title">Le média</h2>
 				<?php
-				$about = get_theme_mod( 'snd_about' );
-				if ( ! $about ) {
-					$about = get_bloginfo( 'description' );
-				}
-				if ( $about ) {
-					echo '<p>' . esc_html( $about ) . '</p>';
+				if ( has_nav_menu( 'footer' ) ) {
+					wp_nav_menu( array( 'theme_location' => 'footer', 'container' => false, 'menu_class' => 'snd-footer-links', 'depth' => 1 ) );
 				}
 				?>
 			</div>
 			<div>
-				<h2>Rubriques</h2>
-				<ul class="snd-footer-cats">
-					<?php
-					foreach ( snd_media_sections() as $slug => $name ) {
-						$term = get_category_by_slug( $slug );
-						if ( $term ) {
-							echo '<li><a href="' . esc_url( get_category_link( $term ) ) . '">' . esc_html( $term->name ) . '</a></li>';
-						}
-					}
-					?>
-				</ul>
-			</div>
-			<div>
-				<h2>Contact</h2>
+				<h2 class="snd-footer-title">Contact rédaction</h2>
 				<ul class="snd-footer-contact">
 					<?php
-					$address = get_theme_mod( 'snd_address' );
-					$phone   = get_theme_mod( 'snd_phone' );
-					$email   = get_theme_mod( 'snd_email' );
-					if ( $address ) {
-						echo '<li>' . esc_html( $address ) . '</li>';
+					$addr  = snd_opt( 'snd_address' );
+					$phone = snd_opt( 'snd_phone' );
+					$email = snd_opt( 'snd_email' );
+					if ( $addr ) {
+						echo '<li>' . snd_icon( 'pin', 16 ) . '<span>' . esc_html( $addr ) . '</span></li>'; // phpcs:ignore
 					}
 					if ( $phone ) {
-						echo '<li><a href="tel:' . esc_attr( preg_replace( '/[^0-9+]/', '', $phone ) ) . '">' . esc_html( $phone ) . '</a></li>';
+						echo '<li>' . snd_icon( 'phone', 16 ) . '<a href="tel:' . esc_attr( preg_replace( '/[^0-9+]/', '', $phone ) ) . '">' . esc_html( $phone ) . '</a></li>'; // phpcs:ignore
 					}
 					if ( $email ) {
-						echo '<li><a href="mailto:' . esc_attr( $email ) . '">' . esc_html( $email ) . '</a></li>';
-					}
-					foreach ( snd_media_socials() as $label => $url ) {
-						echo '<li><a href="' . esc_url( $url ) . '" target="_blank" rel="noopener">' . esc_html( $label ) . '</a></li>';
-					}
-					if ( ! $address && ! $phone && ! $email && ! snd_media_socials() && current_user_can( 'edit_theme_options' ) ) {
-						echo '<li><a href="' . esc_url( admin_url( 'customize.php?autofocus[section]=snd_media' ) ) . '">Ajouter vos coordonnées et réseaux sociaux</a></li>';
+						echo '<li>' . snd_icon( 'mail', 16 ) . '<a href="mailto:' . esc_attr( $email ) . '">' . esc_html( $email ) . '</a></li>'; // phpcs:ignore
 					}
 					?>
 				</ul>
 			</div>
 		</div>
-		<div class="snd-copy">
+	</div>
+	<div class="snd-footer-bottom">
+		<div class="snd-wrap snd-footer-bottom-in">
 			<span>© <?php echo esc_html( wp_date( 'Y' ) ); ?> <?php bloginfo( 'name' ); ?>. Tous droits réservés.</span>
 			<?php if ( get_privacy_policy_url() ) : ?>
 				<a href="<?php echo esc_url( get_privacy_policy_url() ); ?>">Politique de confidentialité</a>
@@ -63,6 +50,7 @@
 		</div>
 	</div>
 </footer>
+<button class="snd-totop" type="button" aria-label="Revenir en haut" hidden><?php echo snd_icon( 'arrow', 18 ); // phpcs:ignore ?></button>
 <?php wp_footer(); ?>
 </body>
 </html>
